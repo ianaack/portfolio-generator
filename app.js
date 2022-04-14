@@ -1,4 +1,6 @@
+const fs = require("fs");
 const inquirer = require("inquirer");
+const generatePage = require("./src/page-template");
 
 const promptUser = () => {
   return inquirer.prompt([
@@ -19,8 +21,8 @@ const promptUser = () => {
       type: "input",
       name: "github",
       message: "Enter your GitHub Username (Required)",
-      validate: (githubNameInput) => {
-        if (githubNameInput) {
+      validate: (githubInput) => {
+        if (githubInput) {
           return true;
         } else {
           console.log("Please enter your GitHub username!");
@@ -32,32 +34,26 @@ const promptUser = () => {
       type: "confirm",
       name: "confirmAbout",
       message:
-        "Would you like to enter some information about yourself for an 'About' section?",
+        'Would you like to enter some information about yourself for an "About" section?',
       default: true,
     },
     {
       type: "input",
       name: "about",
       message: "Provide some information about yourself:",
-      when: ({ confirmAbout }) => {
-        if (confirmAbout) {
-          return true;
-        } else {
-          return false;
-        }
-      },
+      when: ({ confirmAbout }) => confirmAbout,
     },
   ]);
 };
 
 const promptProject = (portfolioData) => {
   console.log(`
-  =================
-  Add A New Project
-  =================
-  `);
+=================
+Add a New Project
+=================
+`);
 
-  // if there's no "projects" array property, create one
+  // If there's no 'projects' array property, create one
   if (!portfolioData.projects) {
     portfolioData.projects = [];
   }
@@ -67,11 +63,11 @@ const promptProject = (portfolioData) => {
         type: "input",
         name: "name",
         message: "What is the name of your project? (Required)",
-        validate: (projectNameInput) => {
-          if (projectNameInput) {
+        validate: (nameInput) => {
+          if (nameInput) {
             return true;
           } else {
-            console.log("Please enter a project name!");
+            console.log("You need to enter a project name!");
             return false;
           }
         },
@@ -80,11 +76,11 @@ const promptProject = (portfolioData) => {
         type: "input",
         name: "description",
         message: "Provide a description of the project (Required)",
-        validate: (projectDescription) => {
-          if (projectDescription) {
+        validate: (descriptionInput) => {
+          if (descriptionInput) {
             return true;
           } else {
-            console.log("Please enter a project description!");
+            console.log("You need to enter a project description!");
             return false;
           }
         },
@@ -92,7 +88,7 @@ const promptProject = (portfolioData) => {
       {
         type: "checkbox",
         name: "languages",
-        message: "What did you build this project with? (Check all that apply)",
+        message: "What did you this project with? (Check all that apply)",
         choices: [
           "JavaScript",
           "HTML",
@@ -107,11 +103,11 @@ const promptProject = (portfolioData) => {
         type: "input",
         name: "link",
         message: "Enter the GitHub link to your project. (Required)",
-        validate: (projectLink) => {
-          if (projectLink) {
+        validate: (linkInput) => {
+          if (linkInput) {
             return true;
           } else {
-            console.log("Please enter a Project GitHub Link!");
+            console.log("You need to enter a project GitHub link!");
             return false;
           }
         },
@@ -142,17 +138,13 @@ const promptProject = (portfolioData) => {
 promptUser()
   .then(promptProject)
   .then((portfolioData) => {
-    console.log(portfolioData);
+    const pageHTML = generatePage(portfolioData);
+    /* "file name that will be created, or output", dataThats(being,written), (callback function to handle errors/successes)*/
+    fs.writeFile("./index.html", pageHTML, (err) => {
+      if (err) throw new Error(err);
+
+      console.log(
+        "Page created! Check out index.html in this directory to see it!"
+      );
+    });
   });
-
-// // global variables
-// const fs = require("fs");
-// const generatePage = require("./src/page-template.js");
-// const pageHTML = generatePate(name, github);
-
-// /* "file name that will be created, or output", dataThats(being,written), (callback function to handle errors/successes)*/
-// fs.writeFile("index.html", pageHTML, (err) => {
-//   if (err) throw err;
-
-//   console.log("Portfolio complete! Check out index.html to see the output!");
-// });
